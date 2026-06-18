@@ -22,6 +22,7 @@ The objective of this lab is to understand how use CSS, HTML and JS; get maeteri
 - Create variables and link it with UI
 - Create EventListeners to set functions
 - Rotate shape on Y axis
+- Deploy Vite on Git pages
 
 ## Features
 
