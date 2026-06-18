@@ -18,7 +18,7 @@ The objective of this lab is to understand how use CSS, HTML and JS; get maeteri
 
 - Setting up a basic Three.js using npm
 - Create UI using HTML
-- Connect CSS to modify the HTML UI
+- Link CSS to modify the HTML UI
 - Create variables and link it with UI
 - Create EventListeners to set functions
 - Rotate shape on Y axis
@@ -43,3 +43,4 @@ This lab serves as the foundation for future experiments involving:
 
 ## Lab 02 Link
 
+https://jmjimmy20.github.io/WebXR_Lab02_ModifyMaterial/
