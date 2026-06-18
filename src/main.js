@@ -1,60 +1,142 @@
-import './style.css'
-import javascriptLogo from './assets/javascript.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import { setupCounter } from './counter.js'
+import './style.css';
 
-document.querySelector('#app').innerHTML = `
-<section id="center">
-  <div class="hero">
-    <img src="${heroImg}" class="base" width="170" height="179">
-    <img src="${javascriptLogo}" class="framework" alt="JavaScript logo"/>
-    <img src="${viteLogo}" class="vite" alt="Vite logo" />
-  </div>
-  <div>
-    <h1>Get started</h1>
-    <p>Edit <code>src/main.js</code> and save to test <code>HMR</code></p>
-  </div>
-  <button id="counter" type="button" class="counter"></button>
-</section>
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
-<div class="ticks"></div>
+/**
+ * 1. RENDERER
+ * Create a <canvas> and set it on body
+ * antialias: soft borders
+ */
+const renderer = new THREE.WebGLRenderer({antialias: true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+//Add canvas to HTML
+document.body.appendChild(renderer.domElement);
 
-<section id="next-steps">
-  <div id="docs">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#documentation-icon"></use></svg>
-    <h2>Documentation</h2>
-    <p>Your questions, answered</p>
-    <ul>
-      <li>
-        <a href="https://vite.dev/" target="_blank">
-          <img class="logo" src="${viteLogo}" alt="" />
-          Explore Vite
-        </a>
-      </li>
-      <li>
-        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-          <img class="button-icon" src="${javascriptLogo}" alt="">
-          Learn more
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div id="social">
-    <svg class="icon" role="presentation" aria-hidden="true"><use href="/icons.svg#social-icon"></use></svg>
-    <h2>Connect with us</h2>
-    <p>Join the Vite community</p>
-    <ul>
-      <li><a href="https://github.com/vitejs/vite" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#github-icon"></use></svg>GitHub</a></li>
-      <li><a href="https://chat.vite.dev/" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#discord-icon"></use></svg>Discord</a></li>
-      <li><a href="https://x.com/vite_js" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#x-icon"></use></svg>X.com</a></li>
-      <li><a href="https://bsky.app/profile/vite.dev" target="_blank"><svg class="button-icon" role="presentation" aria-hidden="true"><use href="/icons.svg#bluesky-icon"></use></svg>Bluesky</a></li>
-    </ul>
-  </div>
-</section>
+/**
+ * 2. SCENE
+ * Scene contain objects, lights, ... everything
+ */
+const scene = new THREE.Scene();
+scene.background = new THREE.Color('#1a1a2e');
 
-<div class="ticks"></div>
-<section id="spacer"></section>
-`
+/**
+ * 3. CAMERA
+ * Parameters (fov, aspect, near, far)
+ *  fov = field of view (75 is standard)
+ *  aspect = screen width to height ratio
+ *  near = how close an object can be
+ *  far = how far an object can be
+ */
+const camera = new THREE.PerspectiveCamera(
+    75,
+    window.innerWidth / innerHeight,
+    0.1,
+    1000
+);
+camera.position.set(0, 1, 4);
 
-setupCounter(document.querySelector('#counter'))
+/**
+ * 4. ORBIT CONTROLS
+ * Allow rotate with mpouse and zoom with scroll
+ */
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+
+/**
+ * 5. LIGHTS
+ * AmbienLight = Soft light that illiminates everything equally
+ * DirectionalLight = As sun, have directon
+ * 
+ */
+
+const ambientLight = new THREE.AmbientLight('#ffffff', 0.5);
+scene.add(ambientLight);
+
+const dirLight = new THREE.DirectionalLight('#ffffff', 1);
+scene.add(dirLight);
+
+const fillLight = new THREE.DirectionalLight('#8899ff', 0.5);
+fillLight.position.set(-5, -2, -3);
+scene.add(fillLight);
+
+/**
+ * 6. OBJECT
+ * Geometry = the shape
+ * Material = visual appearance (color, brightness, texture)
+ * Mesh = geometry + material combined
+ */
+const geometry = new THREE.IcosahedronGeometry(1.3, 0);
+const material = new THREE.MeshStandardMaterial({ 
+    color: '#6c63ff',
+    roughness: 0.3,
+    metalness: 0.2
+});
+const shape = new THREE.Mesh(geometry, material);
+shape.position.set(0, 0, 0);
+scene.add(shape);
+
+/**
+ * 7. CONNECT UI WITH MATERIAL
+ */
+const colorInput = document.getElementById('color-input');
+const roughnessInput = document.getElementById('roughness-input');
+const roughnessValue = document.getElementById('roughness-value');
+const metalnessInput = document.getElementById('metalness-input');
+const metalnessValue = document.getElementById('metalness-value');
+const wireframeBtn = document.getElementById('wireframe-btn');
+
+//COLOR
+colorInput.addEventListener('input', (e) => {
+    material.color.set(e.target.value);
+});
+
+//ROUGHNESS
+roughnessInput.addEventListener('input', (e) => {
+    const value = parseFloat(e.target.value);
+    material.roughness = value;
+    roughnessValue.textContent = value.toFixed(2);// It displays "0.30" instead of "0.3"
+});
+
+metalnessInput.addEventListener('input', (e) => {
+  const value = parseFloat(e.target.value);
+  material.metalness = value;
+  metalnessValue.textContent = value.toFixed(2);
+});
+
+//WIREFRAME: Switch between true/false using click
+let wireframeOn = false;
+wireframeBtn.addEventListener('click', () => {
+    wireframeOn = !wireframeOn;
+    material.wireframe = wireframeOn;
+    wireframeBtn.textContent = wireframeOn ? 'Wireframe: ON' : 'Wireframe: OFF';
+  wireframeBtn.classList.toggle('active', wireframeOn);
+});
+
+/**
+ * 8. ANIMATION LOOP
+ * requestAnimationFrame call this function 60 times per second
+ * Mandatory to any 3D Scene on real time
+ */
+function animate(){
+    requestAnimationFrame(animate);
+
+    controls.update();
+
+    shape.rotation.y += 0.003;
+
+    //Render scene from camera pov
+    renderer.render(scene, camera);
+}
+animate();
+
+/**
+ * 9. RESPONSIVE
+ */
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
